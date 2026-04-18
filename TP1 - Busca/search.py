@@ -125,16 +125,17 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
     visited = set()
     frontier = util.PriorityQueue()
-    frontier.push((problem.getStartState(), []), 0)
+    frontier.push((problem.getStartState(), [], 0), 0)
     while not frontier.isEmpty():
-        current_state, actions = frontier.pop()
+        current_state, actions, current_cost = frontier.pop()
         if problem.isGoalState(current_state):
             return actions
         if current_state not in visited:
             visited.add(current_state)
             for successor, action, stepCost in problem.getSuccessors(current_state):
-                new_cost = problem.getCostOfActions(actions + [action])
-                frontier.push((successor, actions + [action]), new_cost)
+                # new_cost = problem.getCostOfActions(actions + [action])
+                new_cost = current_cost + stepCost
+                frontier.push((successor, actions + [action], new_cost), new_cost)
     return []
 
 def nullHeuristic(state, problem=None):
@@ -147,7 +148,22 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = set()
+    frontier = util.PriorityQueue()
+    frontier.push((problem.getStartState(), [], 0), 0)
+    while not frontier.isEmpty():
+        current_state, actions, current_cost = frontier.pop()
+        if problem.isGoalState(current_state):
+            return actions
+        if current_state not in visited:
+            visited.add(current_state)
+            for successor, action, stepCost in problem.getSuccessors(current_state):
+                # new_cost = problem.getCostOfActions(actions + [action])
+                new_cost = current_cost + stepCost
+                frontier.push((successor, actions + [action], new_cost), new_cost + heuristic(successor, problem))
+    return []
+
+
 
 
 # Abbreviations
