@@ -40,6 +40,7 @@ from game import Actions
 import util
 import time
 import search
+import itertools
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -289,6 +290,12 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
         self.goal = (1,1,1,1)
+        self.distances = [
+            [0,top-1,right-1,top+right-2],
+            [top-1,0,top+right-2,right-1],
+            [right-1,top+right-2,0,top-1],
+            [top+right-2,right-1,top-1,0]
+        ]
 
     def getStartState(self):
         """
@@ -377,11 +384,29 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    "*** YOUR CODE HERE ***"
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    position, corners_goal = state
+    remaining = [corners[i] for i, visited in enumerate(corners_goal) if visited == 0]
+    
+    if not remaining:
+        return 0
+
+    best = 9999999
+    for order in itertools.permutations(remaining):
+        total = 0
+        current = position
+        for corner in order:
+            total += abs(current[0] - corner[0]) + abs(current[1] - corner[1])
+            current = corner
+        if total < best:
+            best = total
+
+    return best
+
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
