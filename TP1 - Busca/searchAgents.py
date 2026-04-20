@@ -549,16 +549,57 @@ def foodHeuristic(state, problem):
     key = lambda p: util.manhattanDistance(position, p)
     # remaining = sorted(foodGrid.asList(), key=key, reverse=True)[:4]
     remaining = [np, sp, wp, ep]
+
+    # def foodSimpleHeuristic(state, problem):
+    #     position, foodGrid = state
+    #     n = s = w = e = 0
+    #     for coords in foodGrid.asList():
+    #         dx = coords[0] - position[0]
+    #         dy = coords[1] - position[1]
+    #         if n < dy: n = dy
+    #         if s > dy: s = dy
+    #         if e < dx: e = dx
+    #         if w > dx: w = dx
+    #     miny = min(n, -s)
+    #     # miny = n
+    #     minx = min(e, -w)
+    #     # minx = e
+        
+    #     h = n - s + e - w + minx + miny
+    #     return h
+
+
+    # foodProb = FoodSearchProblem(startingGameState=problem.startingGameState)
+    # newGrid = Grid(problem.walls.width, problem.walls.height)
+    # for food in remaining:
+    #     newGrid[food[0]][food[1]] = True
+    # foodProb.start = (problem.start[0], newGrid)
+
+    # h = search.astar(foodProb, foodSimpleHeuristic)
+    # return len(h)
+
+    # h = 0
+    # for corner in remaining:
+    #     dist = mazeDistance(position, corner, problem.startingGameState)
+    #     if h < dist:
+    #         h = dist
+    # return h
     
     if not remaining:
         return 0
 
-    best = 9999999
+    current = position
+    best = 0
+    for corner in remaining:
+        best += mazeDistance(current, corner, problem.startingGameState)
+        # best += abs(current[0] - corner[0]) + abs(current[1] - corner[1])
+        current = corner
     for order in itertools.permutations(remaining):
         total = 0
         current = position
         for corner in order:
-            total += abs(current[0] - corner[0]) + abs(current[1] - corner[1])
+            total += mazeDistance(current, corner, problem.startingGameState)
+            # total += abs(current[0] - corner[0]) + abs(current[1] - corner[1])
             current = corner
         if total < best:
             best = total
