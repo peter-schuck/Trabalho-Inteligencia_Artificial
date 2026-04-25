@@ -470,10 +470,6 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
-from game import Grid
-from random import choice
-import itertools
-
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -504,54 +500,6 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-
-    # wallless_problem = FoodSearchProblem(problem.startingGameState)
-    # width = problem.walls.width
-    # height = problem.walls.height
-    # wallless_problem.walls = Grid(width, height)
-    # for i in range(width):
-    #     wallless_problem.walls[i][0] = True
-    #     wallless_problem.walls[i][height-1] = True
-    # for i in range(height):
-    #     wallless_problem.walls[0][i] = True
-    #     wallless_problem.walls[width-1][i] = True
-
-    # return len(search.dfs(wallless_problem))
-
-
-    # h = 0
-    # n = s = w = e = 0
-    # for coordsa in foodGrid.asList():
-    #     for coordsb in foodGrid.asList():
-    #         dx = coordsa[0] - coordsb[0]
-    #         dy = coordsa[1] - coordsb[1]
-    #         if n < dy: n = dy
-    #         if s > dy: s = dy
-    #         if e < dx: e = dx
-    #         if w > dx: w = dx
-
-    # return (n - s + e - w) / (foodGrid.count() + 1)
-
-
-
-
-    # n = s = w = e = 0
-    # for coords in foodGrid.asList():
-    #     dx = coords[0] - position[0]
-    #     dy = coords[1] - position[1]
-    #     if n < dy: n = dy
-    #     if s > dy: s = dy
-    #     if e < dx: e = dx
-    #     if w > dx: w = dx
-    # miny = min(n, -s)
-    # # miny = n
-    # minx = min(e, -w)
-    # # minx = e
-    
-    # h = n - s + e - w + minx + miny
-    # return h
-
-    ####
     
     np = sp = wp = ep = position
     n = s = w = e = 0
@@ -562,54 +510,48 @@ def foodHeuristic(state, problem):
         if s > dy: s = dy; sp = coords
         if e < dx: e = dx; ep = coords
         if w > dx: w = dx; wp = coords
-    miny = min(n, -s)
-    # miny = n
-    minx = min(e, -w)
-    # minx = e
-    
-    h = n - s + e - w + minx + miny
-    
-    
 
-    key = lambda p: util.manhattanDistance(position, p)
-    # remaining = sorted(foodGrid.asList(), key=key, reverse=True)[:4]
     remaining = [np, sp, wp, ep]
 
-    # def foodSimpleHeuristic(state, problem):
-    #     position, foodGrid = state
-    #     n = s = w = e = 0
-    #     for coords in foodGrid.asList():
-    #         dx = coords[0] - position[0]
-    #         dy = coords[1] - position[1]
-    #         if n < dy: n = dy
-    #         if s > dy: s = dy
-    #         if e < dx: e = dx
-    #         if w > dx: w = dx
-    #     miny = min(n, -s)
-    #     # miny = n
-    #     minx = min(e, -w)
-    #     # minx = e
-        
-    #     h = n - s + e - w + minx + miny
-    #     return h
+    h = 0
+    for corner in remaining:
+        dist = mazeDistance(position, corner, problem.startingGameState)
+        if h < dist:
+            h = dist
+    return h
 
+def foodHeuristicFast(state, problem):
+    position, foodGrid = state
 
-    # foodProb = FoodSearchProblem(startingGameState=problem.startingGameState)
-    # newGrid = Grid(problem.walls.width, problem.walls.height)
-    # for food in remaining:
-    #     newGrid[food[0]][food[1]] = True
-    # foodProb.start = (problem.start[0], newGrid)
-
-    # h = search.astar(foodProb, foodSimpleHeuristic)
-    # return len(h)
-
-    # h = 0
-    # for corner in remaining:
-    #     dist = mazeDistance(position, corner, problem.startingGameState)
-    #     if h < dist:
-    #         h = dist
-    # return h
+    n = s = w = e = 0
+    for coords in foodGrid.asList():
+        dx = coords[0] - position[0]
+        dy = coords[1] - position[1]
+        if n < dy: n = dy; 
+        if s > dy: s = dy; 
+        if e < dx: e = dx; 
+        if w > dx: w = dx; 
+    miny = min(n, -s)
+    minx = min(e, -w)
     
+    h = n - s + e - w + minx + miny
+    return h
+
+def foodHeuristicSlow(state, problem):
+    position, foodGrid = state
+
+    np = sp = wp = ep = position
+    n = s = w = e = 0
+    for coords in foodGrid.asList():
+        dx = coords[0] - position[0]
+        dy = coords[1] - position[1]
+        if n < dy: n = dy; np = coords
+        if s > dy: s = dy; sp = coords
+        if e < dx: e = dx; ep = coords
+        if w > dx: w = dx; wp = coords
+    
+    remaining = [np, sp, wp, ep]
+
     if not remaining:
         return 0
 
@@ -630,45 +572,6 @@ def foodHeuristic(state, problem):
             best = total
 
     return best
-
-    
-   
-
-    h = 0
-    for coords in foodGrid.asList():
-        if h < util.manhattanDistance(position, coords): # maior dist jogador
-            h = util.manhattanDistance(position, coords)
-    
-    n = s = w = e = 0 
-    for coords in foodGrid.asList():
-        dx = coords[0] - position[0]
-        dy = coords[1] - position[1]
-        if n < dy: n = dy
-        if s > dy: s = dy
-        if e < dx: e = dx
-        if w > dx: w = dx
-    miny = min(n, -s)
-    minx = min(e, -w)
-    
-    h = n - s + e - w + minx + miny
-    
-    return h
-
-    d = 0
-    for coordsa in foodGrid.asList():
-        for coordsb in foodGrid.asList():
-            # if d < util.manhattanDistance(coordsa, coordsb): # maior dist frutas
-            d += util.manhattanDistance(coordsa, coordsb)
-    
-
-    
-    return d/(foodGrid.count()**2+1)
-
-    h = 0
-    for xy2 in foodGrid.asList():
-        xy1 = position
-        h += ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
-    return h/(foodGrid.count()+1)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
