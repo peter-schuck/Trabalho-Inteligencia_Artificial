@@ -17,6 +17,11 @@ def make_move(state: GameState) -> Tuple[int, int]:
     :param state: estado para fazer a jogada
     :return: tupla (int, int) com as coordenadas x, y da jogada (lembre-se: 0 é a primeira linha/coluna)
     """
+    player = state.player
+    
+    action = minimax_move(state, -1, lambda state: utility(state, player))
+    
+    return action
 
     # o codigo abaixo apenas retorna um movimento aleatorio valido para
     # a primeira jogada do Jogo da Tic-Tac-Toe Misere
@@ -32,5 +37,11 @@ def utility(state, player:str) -> float:
     """
     Retorna a utilidade de um estado (terminal) 
     """
-    return 0   # substitua pelo seu codigo
+    winner = state.winner()
+    if winner == None: # empate
+        return 0
+    if winner == player: # ganhou
+        return 10
+    return -10  # perdeu
+    
     
