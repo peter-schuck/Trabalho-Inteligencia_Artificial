@@ -14,7 +14,8 @@ def minimax_move(state, max_depth:int, eval_func:Callable) -> Tuple[int, int]:
     """
     alpha = -math.inf
     beta = math.inf
-    action, value = Max(state, max_depth, eval_func, alpha, beta)
+    player = state.player
+    action, value = Max(state, max_depth, lambda state: eval_func(state, player), alpha, beta)
     return action
     
 def Max(state, max_depth:int, eval_func:Callable, alpha, beta): #-> Tuple[Tuple[int, int], int]

@@ -17,9 +17,8 @@ def make_move(state: GameState) -> Tuple[int, int]:
     :param state: estado para fazer a jogada
     :return: tupla (int, int) com as coordenadas x, y da jogada (lembre-se: 0 é a primeira linha/coluna)
     """
-    player = state.player
-    
-    action = minimax_move(state, -1, lambda state: utility(state, player))
+   
+    action = minimax_move(state, -1, utility)
     
     return action
 

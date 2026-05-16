@@ -19,9 +19,8 @@ def make_move(state) -> Tuple[int, int]:
     """
 
 
-    player = state.player
 
-    action = minimax_move(state, 5, lambda state: evaluate_count(state, player))
+    action = minimax_move(state, 5, evaluate_count)
     
     return action
     # o codigo abaixo apenas retorna um movimento aleatorio valido para
@@ -40,14 +39,6 @@ def evaluate_count(state, player:str) -> float:
     :param state: state to evaluate (instance of GameState)
     :param player: player to evaluate the state for (B or W)
     """
-    
-    if state.is_terminal():
-        winner = state.winner()
-        if winner == None: # empate
-            return 0
-        if winner == player: # ganhou
-            return 100000
-        return -100000  # perdeu
-    
-    count = state.board.num_pieces(player)
+        
+    count = state.board.num_pieces(player) - state.board.num_pieces(state.board.opponent(player))
     return count
