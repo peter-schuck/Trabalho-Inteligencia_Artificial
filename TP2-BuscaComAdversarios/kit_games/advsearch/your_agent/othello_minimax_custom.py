@@ -33,4 +33,4 @@ def evaluate_custom(state, player:str) -> float:
     :param state: state to evaluate (instance of GameState)
     :param player: player to evaluate the state for (B or W)
     """
-    return state.board.legal_moves(player).__len__() - state.board.legal_moves(state.board.opponent(player)).__len__()
+    return ((state.board.legal_moves(player).__len__() - state.board.legal_moves(state.board.opponent(player)).__len__()) + (state.board.num_pieces(player) - state.board.num_pieces(state.board.opponent(player)))) / 2

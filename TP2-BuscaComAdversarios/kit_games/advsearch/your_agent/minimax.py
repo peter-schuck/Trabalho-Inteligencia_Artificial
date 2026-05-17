@@ -24,7 +24,11 @@ def Max(state, max_depth:int, eval_func:Callable, alpha, beta): #-> Tuple[Tuple[
     value = -math.inf
     action = (-1, -1)
     for possible_action in state.legal_moves():
-        a, new_value = Min(state.next_state(possible_action), max_depth-1, eval_func, alpha, beta)
+        next_state = state.next_state(possible_action)
+        if next_state.player == state.player:
+            a, new_value = Max(next_state, max_depth-1, eval_func, alpha, beta)
+        else:
+            a, new_value = Min(next_state, max_depth-1, eval_func, alpha, beta)
         if new_value > value:
             value = new_value
             action = possible_action
@@ -40,7 +44,11 @@ def Min(state, max_depth:int, eval_func:Callable, alpha, beta): #-> Tuple[Tuple[
     value = math.inf
     action = (-1, -1)
     for possible_action in state.legal_moves():
-        a, new_value = Max(state.next_state(possible_action), max_depth-1, eval_func, alpha, beta)
+        next_state = state.next_state(possible_action)
+        if next_state.player == state.player:
+            a, new_value = Min(next_state, max_depth-1, eval_func, alpha, beta)
+        else:
+            a, new_value = Max(next_state, max_depth-1, eval_func, alpha, beta)
         if new_value < value:
             value = new_value
             action = possible_action
@@ -49,7 +57,3 @@ def Min(state, max_depth:int, eval_func:Callable, alpha, beta): #-> Tuple[Tuple[
             break
 
     return action, value
-
-
-
-
