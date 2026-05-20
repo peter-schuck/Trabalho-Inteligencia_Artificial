@@ -33,4 +33,15 @@ def evaluate_custom(state, player:str) -> float:
     :param state: state to evaluate (instance of GameState)
     :param player: player to evaluate the state for (B or W)
     """
-    return ((state.board.legal_moves(player).__len__() - state.board.legal_moves(state.board.opponent(player)).__len__()) + (state.board.num_pieces(player) - state.board.num_pieces(state.board.opponent(player)))) / 2
+    opponent = state.board.opponent(player)
+    num_legal_moves_advantage = state.board.legal_moves(player).__len__() - state.board.legal_moves(opponent).__len__()
+    num_pieces_advantage = state.board.num_pieces(player) - state.board.num_pieces(opponent)
+    board = state.board.__str__().splitlines()
+    corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+    corner_advantage = 0
+    for corner in corners:
+        if board[corner[0]][corner[1]] == player:
+            corner_advantage += 100
+        elif board[corner[0]][corner[1]] == opponent:
+            corner_advantage -= 100
+    return ((0.3 * num_legal_moves_advantage) + (0.4 * num_pieces_advantage) + (0.3 * corner_advantage))
