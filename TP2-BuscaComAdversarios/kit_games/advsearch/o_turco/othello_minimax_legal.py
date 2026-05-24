@@ -22,10 +22,10 @@ def make_move(state) -> Tuple[int, int]:
     # a primeira jogada 
     # Remova-o e coloque uma chamada para o minimax_move (que vc implementara' no modulo minimax).
     # A chamada a minimax_move deve receber sua funcao evaluate como parametro.
-    return minimax_move(state, 5, evaluate_custom)
+    return minimax_move(state, 5, evaluate_legal)
 
 
-def evaluate_custom(state, player:str) -> float:
+def evaluate_legal(state, player:str) -> float:
     """
     Evaluates an othello state from the point of view of the given player. 
     If the state is terminal, returns its utility. 
@@ -35,13 +35,4 @@ def evaluate_custom(state, player:str) -> float:
     """
     opponent = state.board.opponent(player)
     num_legal_moves_advantage = state.board.legal_moves(player).__len__() - state.board.legal_moves(opponent).__len__()
-    num_pieces_advantage = state.board.num_pieces(player) - state.board.num_pieces(opponent)
-    board = state.board.__str__().splitlines()
-    corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
-    corner_advantage = 0
-    for corner in corners:
-        if board[corner[0]][corner[1]] == player:
-            corner_advantage += 100
-        elif board[corner[0]][corner[1]] == opponent:
-            corner_advantage -= 100
-    return ((0.3 * num_legal_moves_advantage) + (0.4 * num_pieces_advantage) + (0.3 * corner_advantage))
+    return num_legal_moves_advantage
