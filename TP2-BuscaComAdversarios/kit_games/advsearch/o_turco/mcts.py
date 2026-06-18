@@ -41,20 +41,21 @@ def make_move(state, eval_func:Callable | None = None) -> Tuple[int, int] | None
     root = MCTSNode(state)
     root.unexplored_actions = root.state.legal_moves()
     player = state.player
-
+    times_played = 0
     # 4.5 por segurança, mas podemos deixar mais próximo de 5
     while time.time() - start < 4.9:
         child = select_and_expand(root)
         result = simulate(child, eval_func)
         back_propagate(child,result)
-    
+        times_played += 1
+    print(times_played)
     return best_move(root)
 
 
 
     
 
-EXPLORATION_CONSTANT = 2 #1.414 # ver melhor isso aqui depois, talvez exista algum valor melhor
+EXPLORATION_CONSTANT = 1.3 #1.414 # ver melhor isso aqui depois, talvez exista algum valor melhor
 def select_and_expand(node:MCTSNode):
     best_score = -float('inf')
     best_node = None
@@ -85,8 +86,32 @@ def select_and_expand(node:MCTSNode):
 # seleciona qualquer ação até chegar em um terminal
 #retorna None se for empate
 def simulate(node:MCTSNode, eval_func:Callable | None) -> (str | None):
-    if not node.state.is_terminal():
-        node.unexplored_actions = node.state.legal_moves()
+    if node.state.is_terminal():
+        return node.state.winner()
+    elif len(node.state.legal_moves()) == 0:
+        return node.state.board.opponent(node.state.player)
+    elif not node.state.board.has_legal_move(node.state.board.opponent(node.state.player)):
+        return node.state.player
+    node.unexplored_actions = node.state.legal_moves()
+    opponent = node.state.board.opponent(node.state.player)
+    num_legal_moves_advantage = node.state.board.legal_moves(node.state.player).__len__() - node.state.board.legal_moves(opponent).__len__()
+    num_pieces_advantage = node.state.board.num_pieces(node.state.player) - node.state.board.num_pieces(opponent)
+    board = node.state.board.__str__().splitlines()
+    corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+    corner_advantage = 0
+    for corner in corners:
+        if board[corner[0]][corner[1]] == node.state.player:
+            corner_advantage += 100
+        elif board[corner[0]][corner[1]] == opponent:
+            corner_advantage -= 100
+    result = ((0.25 * num_legal_moves_advantage) + (0.45 * num_pieces_advantage) + (0.30 * corner_advantage))
+    if result > 0:
+        return node.state.player
+    elif result < 0:
+        return opponent
+    else:
+        return None
+    '''
     current = node.state
     while not current.is_terminal():
         legal_moves = current.legal_moves()
@@ -95,6 +120,7 @@ def simulate(node:MCTSNode, eval_func:Callable | None) -> (str | None):
         current = current.next_state(chosen_move)
         
     return current.winner()
+    '''
 
 def back_propagate(node:MCTSNode, result:str | None):
     while True:
