@@ -157,6 +157,7 @@ class Server(object):
             move = function_call.run(delay)
                 
             elapsed = time.time() - start
+            print(f"player took {elapsed} seconds")
 
             if move is None:  # detects timeout
                 print(f'Player {current_player} has not made a move and lost its turn. Illegal moves count incremented')
