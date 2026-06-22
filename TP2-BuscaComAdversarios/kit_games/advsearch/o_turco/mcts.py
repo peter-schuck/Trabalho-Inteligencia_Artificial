@@ -64,7 +64,7 @@ def select_and_expand(node:MCTSNode):
         parent_visits = math.log(node.visits)
 
     if node.unexplored_actions: ##### isso aqui possivelmente vai precisar ser melhorado
-        action = node.unexplored_actions.pop()
+        action = set(node.unexplored_actions).pop()
         next_state = node.state.next_state(action)
         child = MCTSNode(next_state, father=node)
         node.children[action] = child
@@ -73,7 +73,7 @@ def select_and_expand(node:MCTSNode):
     for child in node.children.values():
         exploitation = child.reward/child.visits
         exploration = math.sqrt(parent_visits/child.visits)
-        ucb1 = (exploitation + EXPLORATION_CONSTANT) * exploration
+        ucb1 = exploitation + EXPLORATION_CONSTANT * exploration
         if ucb1 > best_score:
             best_score = ucb1
             best_node = child
@@ -86,6 +86,7 @@ def select_and_expand(node:MCTSNode):
 # seleciona qualquer ação até chegar em um terminal
 #retorna None se for empate
 def simulate(node:MCTSNode, eval_func:Callable | None) -> (str | None):
+    '''
     if node.state.is_terminal():
         return node.state.winner()
     elif len(node.state.legal_moves()) == 0:
@@ -111,6 +112,13 @@ def simulate(node:MCTSNode, eval_func:Callable | None) -> (str | None):
         return opponent
     else:
         return None
+    
+    if node.state.is_terminal():
+        return node.state.winner()
+    elif len(node.state.legal_moves()) == 0:
+        return node.state.board.opponent(node.state.player)
+    elif not node.state.board.has_legal_move(node.state.board.opponent(node.state.player)):
+        return node.state.player
     '''
     current = node.state
     while not current.is_terminal():
@@ -118,9 +126,9 @@ def simulate(node:MCTSNode, eval_func:Callable | None) -> (str | None):
         #isso ainda pode mudar, queria uma forma de que fosse aleatória essa seleção
         chosen_move = random.choice(tuple(legal_moves))
         current = current.next_state(chosen_move)
-        
+    node.unexplored_actions = node.state.legal_moves()
     return current.winner()
-    '''
+    
 
 def back_propagate(node:MCTSNode, result:str | None):
     while True:
@@ -136,16 +144,12 @@ def back_propagate(node:MCTSNode, result:str | None):
     return
 
 def best_move(node:MCTSNode) -> (tuple[int,int] | None):
-    best_score = -float('inf')
+    most_visited = 0
     best_action = None
-    parent_visits = math.log(node.visits)
     for action in node.children:
         child = node.children[action]
-        exploitation = child.reward/child.visits
-        exploration = math.sqrt(parent_visits/child.visits)
-        ucb1 = (exploitation + EXPLORATION_CONSTANT) * exploration
-        if ucb1 > best_score:
-            best_score = ucb1
+        if child.visits > most_visited:
+            most_visited = child.visits
             best_action = action
 
     return best_action
