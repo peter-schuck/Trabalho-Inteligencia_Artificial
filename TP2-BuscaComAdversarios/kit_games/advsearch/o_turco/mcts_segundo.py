@@ -86,13 +86,14 @@ def select_and_expand(node:MCTSNode):
 # seleciona qualquer ação até chegar em um terminal
 #retorna None se for empate
 def simulate(node:MCTSNode, eval_func:Callable | None) -> (str | None):
+    if not node.state.is_terminal():
+        node.unexplored_actions = node.state.legal_moves()
     if node.state.is_terminal():
         return node.state.winner()
     elif len(node.state.legal_moves()) == 0:
         return node.state.board.opponent(node.state.player)
     elif not node.state.board.has_legal_move(node.state.board.opponent(node.state.player)):
         return node.state.player
-    node.unexplored_actions = node.state.legal_moves()
     opponent = node.state.board.opponent(node.state.player)
     num_legal_moves_advantage = node.state.board.legal_moves(node.state.player).__len__() - node.state.board.legal_moves(opponent).__len__()
     num_pieces_advantage = node.state.board.num_pieces(node.state.player) - node.state.board.num_pieces(opponent)
