@@ -1,5 +1,5 @@
 import random
-from typing import Tuple, Callable
+from typing import Tuple
 import time
 import math
 
@@ -9,7 +9,6 @@ import math
 #
 # Nao esqueca de renomear 'your_agent' com o nome
 # do seu agente.
-#@dataclass(slots=True)
 
 #from othello.gamestate import GameState # apagar isso depois
 class MCTSNode:
@@ -24,7 +23,7 @@ class MCTSNode:
         self.unexplored_actions = set[tuple[int,int]]()
 
 #quero ver se crio uma heurística para a simulação
-def make_move(state, eval_func:Callable | None = None) -> Tuple[int, int] | None: 
+def make_move(state) -> Tuple[int, int]: 
     """
     Returns a move for the given game state. 
     The game is not specified, but this is MCTS and should handle any game, since
@@ -39,13 +38,13 @@ def make_move(state, eval_func:Callable | None = None) -> Tuple[int, int] | None
     #return (-1, -1)
     start = time.time()
     root = MCTSNode(state)
-    root.unexplored_actions = root.state.legal_moves()
+    root.unexplored_actions = set(root.state.legal_moves())  
     player = state.player
     times_played = 0
     # 4.5 por segurança, mas podemos deixar mais próximo de 5
     while time.time() - start < 4.9:
         child = select_and_expand(root)
-        result = simulate(child, eval_func)
+        result = simulate(child)
         back_propagate(child,result)
         times_played += 1
     print(times_played)
@@ -64,7 +63,7 @@ def select_and_expand(node:MCTSNode):
         parent_visits = math.log(node.visits)
 
     if node.unexplored_actions: ##### isso aqui possivelmente vai precisar ser melhorado
-        action = set(node.unexplored_actions).pop()
+        action = node.unexplored_actions.pop()
         next_state = node.state.next_state(action)
         child = MCTSNode(next_state, father=node)
         node.children[action] = child
@@ -85,9 +84,9 @@ def select_and_expand(node:MCTSNode):
 
 # seleciona qualquer ação até chegar em um terminal
 #retorna None se for empate
-def simulate(node:MCTSNode, eval_func:Callable | None) -> (str | None):
+def simulate(node:MCTSNode) -> (str | None):
     if not node.state.is_terminal():
-        node.unexplored_actions = node.state.legal_moves()
+        node.unexplored_actions = set(node.state.legal_moves())
     current = node.state
     while not current.is_terminal():
         legal_moves = current.legal_moves()
@@ -102,7 +101,7 @@ def back_propagate(node:MCTSNode, result:str | None):
         node.visits += 1
         if result == None:
             node.reward += 0.5
-        elif node.state.player == result:
+        elif node.state.player != result:
             node.reward += 1
             
         if node.father is None:
@@ -110,9 +109,9 @@ def back_propagate(node:MCTSNode, result:str | None):
         node = node.father
     return
 
-def best_move(node:MCTSNode) -> (tuple[int,int] | None):
+def best_move(node:MCTSNode) -> tuple[int,int]:
     most_visited = 0
-    best_action = None
+    best_action = tuple[int,int]()
     for action in node.children:
         child = node.children[action]
         if child.visits > most_visited:
