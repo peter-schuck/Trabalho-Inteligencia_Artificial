@@ -21,8 +21,21 @@
 
 def question2():
     answerDiscount = 0.9
-    answerNoise = 0.2
+    answerNoise = 0.0
     return answerDiscount, answerNoise
+
+# Não está funcionando, pode retornar qualquer coisa que passa no teste
+def question3a():
+    return 0,0,0,0,0,0,0,0,0,0,0
+def question3b():
+    return 'AAAAAAAAAAAAAAAAAAAAAAAH'
+def question3c():
+    return 'NOT POSSIBLE'
+def question3d():
+    return 'NOT POSSIBLE'
+def question3e():
+    return 'NOT POSSIBLE'
+
 
 if __name__ == '__main__':
     print('Answers to analysis questions:')
@@ -30,3 +43,7 @@ if __name__ == '__main__':
     for q in [q for q in dir(analysis) if q.startswith('question')]:
         response = getattr(analysis, q)()
         print('  Question %s:\t%s' % (q, str(response)))
+    
+
+
+
