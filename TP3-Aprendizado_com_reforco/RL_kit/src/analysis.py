@@ -21,8 +21,11 @@
 
 def question2():
     answerDiscount = 0.9
-    answerNoise = 0.0
+    answerNoise = 0.01
     return answerDiscount, answerNoise
+
+#Modificamos o ruído, assim o agente de Iteração por Valor consegue cruzar a ponte sem cair,
+# pois a chance de acabar em um estado sucessor não intencional foi diminuída em 19%.
 
 # Não está funcionando, pode retornar qualquer coisa que passa no teste
 def question3a():
